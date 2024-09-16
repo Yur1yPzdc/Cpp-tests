@@ -1,71 +1,89 @@
-#include <cassert>
 #include <cmath>
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
-int which_to_take(int size, int stepg, int step){
-  if (step<stepg) { return step; }
-  else {return 1+step; }
+
+int which_to_take(int step_global, int step){
+  if (step<step_global) return step;
+  else return 1+step;
 }
 
-int reduce(vector<vector<vector<int>>> s){
-  int correct_idx, sizeofcorrect;
-  bool flag = true;
-  while(flag) {
-    correct_idx = (sizeof (s[0][0]) / sizeof (int))-1;
-    sizeofcorrect = 32;
-    cout << "{";
+int get_size(int ** obj) {
+  return (sizeof(*obj)/sizeof(int));
+}
 
-    while (sizeofcorrect<=2) {
-      correct_idx--;
-      sizeofcorrect = s[correct_idx].size(); 
-    }
-    cout << correct_idx;
+int compute(vector<int**>* s){
+    int correct_idx, size_of_correct, trash;
+    bool stage_1 = true;
+    while (stage_1) {
+      cout << "stage 1 started\n";
+      stage_1 = false;
+      correct_idx = (*s).size();
 
-    for (int i=0; i<sizeofcorrect; i++) {
-      vector<vector<int>> new_thingy;
-      for (int x=0; x<sizeofcorrect-1; x++) {
-        for (int y=0; y<sizeofcorrect-1; y++) {
-          new_thingy[x][y] = s[correct_idx]
-                              [which_to_take(sizeofcorrect, i, x)]
-                              [which_to_take(sizeofcorrect, i, y)];
-          if (x==0) { new_thingy[x][y] *= pow(-1,1+i+1)*s[correct_idx][0][i]; }
+      do {
+        correct_idx--;
+        size_of_correct = get_size((*s)[correct_idx]);
+        cin >> trash;
+        cout << size_of_correct << endl << correct_idx << endl;
+      } while (size_of_correct<=2);
+
+      cout << "index found " << correct_idx << endl;
+
+      for (int global_step=0; global_step<size_of_correct; global_step++){
+        int** lesser_matrix = new int* [size_of_correct-1];
+        cout << "LM\n";
+        for (int x=0; x<size_of_correct-1; x++){
+          int* lesser_matrix_row = new int [size_of_correct-1];
+          cout << "LMR\n";
+          for (int y=0; y<size_of_correct-1; y++){
+            cout << global_step << "\t" << x << "\t" << y << endl;
+            cin >> trash;
+            lesser_matrix_row[y] = (*s)[correct_idx][x+1]
+                                    [which_to_take(global_step, y)];
+            if (y==0) lesser_matrix_row[y] *= 
+              pow(-1,global_step)*(*s)[correct_idx][0][global_step];
+            cout << "object added" << lesser_matrix_row[y] << endl;
+          }
+          lesser_matrix[x] = lesser_matrix_row;
         }
+        (*s).push_back(lesser_matrix);
+        //delete [] lesser_matrix_row;
+        delete [] lesser_matrix;
+        cout << "lesser matrix pushed\n";
       }
-      cout << new_thingy[0][0] << endl;
-      s.push_back(new_thingy);
+      (*s).erase((*s).begin()+correct_idx);
+      for (int i=0; i<(*s).size(); i++) { if (get_size((*s)[i])!=2 ) { stage_1 = true; } }
     }
-    s.erase(s.begin()+correct_idx);
-
-    for (int i=0; i<s.size(); i++) { if (s[i].size() != 2) { flag = false; } }
+  cout << "counting ans\n";
+  int ans=0;
+  for (int i=0; i<(*s).size(); i++){
+  ans+=((*s)[i][0][0]*(*s)[i][1][1])-((*s)[i][1][0]*(*s)[i][0][1]);
   }
-
-  int cummirovanie = 0;
-  for (int i=0; i<s.size(); i++) {
-    cummirovanie += (s[i][0][0]*s[i][1][1] - s[i][1][0]*s[i][0][1]);
-  }
-  return cummirovanie;
+  return ans;
 }
+
 
 int main(){
   int size, determinant;
   cin >> size;
-  assert(size>2);
+  //size = 5;
 
-  vector<vector<vector<int>>> s;
-  vector<vector<int>> qq;
+  vector<int**> s;
+  int** matrix = new int* [size];
   for (int n1=0; n1<size; n1++) {
-    vector<int> q;
+    int* matrix_row = new int [size];
     for (int n2=0; n2<size; n2++) {
-      int e; 
-      cin >> e;
-      q.push_back(e);
+      cin >> matrix_row[n2];
     }
-    qq.push_back(q);
+    matrix[n1] = matrix_row;
+    delete [] matrix_row;
   }
-  s.push_back(qq);
-  int res = reduce(s);
+  s.push_back(matrix);
+  cout << s[0][0][0] << endl;
+  cout << (sizeof **(s[0])) << endl;
+  delete [] matrix;
+  int res = compute(&s);
   cout << res;
 }
