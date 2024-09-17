@@ -10,7 +10,7 @@ int which_to_take(int step_global, int step){
   else return 1+step;
 }
 
-int compute(vector<tuple<int,int**>>* s){
+double compute(vector<tuple<int,double**>>* s){
     int correct_idx, size_of_correct, trash;
     bool stage_1 = true;
     while (stage_1) {
@@ -27,10 +27,10 @@ int compute(vector<tuple<int,int**>>* s){
       cout << "index found " << correct_idx << endl;
 
       for (int global_step=0; global_step<size_of_correct; global_step++){
-        int** lesser_matrix = new int* [size_of_correct-1];
+        double** lesser_matrix = new double* [size_of_correct-1];
         //cout << "LM\n";
         for (int x=0; x<size_of_correct-1; x++){
-          int* lesser_matrix_row = new int [size_of_correct-1];
+          double* lesser_matrix_row = new double [size_of_correct-1];
           //cout << "LMR\n";
           for (int y=0; y<size_of_correct-1; y++){
             //cout << global_step << "\t" << x << "\t" << y << endl;
@@ -63,10 +63,10 @@ int compute(vector<tuple<int,int**>>* s){
 int main(){
   int size, determinant;
   cin >> size;
-  vector<tuple<int,int**>> s;
-  int** matrix = new int* [size];
+  vector<tuple<int,double**>> s;
+  double** matrix = new double* [size];
   for (int n1=0; n1<size; n1++) {
-    int* matrix_row = new int [size];
+    double* matrix_row = new double [size];
     for (int n2=0; n2<size; n2++) {
       cin >> matrix_row[n2];
     }
